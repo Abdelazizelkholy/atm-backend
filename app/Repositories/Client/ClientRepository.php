@@ -8,43 +8,44 @@ class ClientRepository implements ClientRepositoryInterface
 {
 
 
-    public function updateBalance(int $userId, float $amount)
-    {
-        $user = User::find($userId);
-        if ($user) {
-            $user->balance += $amount;
-            return $user->save();
-        }
-        return false;
-    }
 
-    public function withdraw(int $userId, float $amount)
+    public function updateBalance(int $userId, float $amount, string $operation): bool
     {
+        // Find the user with their account
+        $user = User::with('account')->find($userId);
 
-        if ($amount <= 0) {
+        if (!$user || !$user->account) {
             return false;
         }
 
-        $user = User::find($userId);
+        $account = $user->account;
 
-        if (!$user || $user->balance < $amount) {
+        if ($operation === self::OPERATION_SUBTRACT && $account->balance == 0) {
             return false;
         }
 
-        DB::beginTransaction();
-
-        try {
-            $user->balance -= $amount;
-            $user->save();
-
-            DB::commit();
-
-            return true;  // Withdrawal successful
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return false;  // Withdrawal failed
+        if ($operation === self::OPERATION_SUBTRACT) {
+            if ($account->balance < $amount) {
+                return false;
+            }
+            $account->balance -= $amount;
         }
+
+        elseif ($operation === self::OPERATION_ADD) {
+            $account->balance += $amount;
+        } else {
+            return false;
+        }
+        return $account->save();
     }
+
+    public function getBalance(int $userId): float
+    {
+        $user = User::with('account')->find($userId);
+
+        return $user && $user->account ? $user->account->balance : 0.0;
+    }
+
 
 
 

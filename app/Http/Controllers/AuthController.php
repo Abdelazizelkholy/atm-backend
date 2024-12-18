@@ -15,9 +15,11 @@ class AuthController extends Controller
     {
         $credentials = $request->only('card_number', 'pin');
 
-        $user = User::where('card_number', $credentials['card_number'])->first();
+        $user = User::whereHas('account', function ($query) use ($credentials) {
+            $query->where('card_number', $credentials['card_number']);
+        })->first();
 
-        if (!$user || !Hash::check($credentials['pin'], $user->pin)) {
+        if (!$user || !Hash::check($credentials['pin'], $user->account->pin)) {
             return response()->json(['error' => 'Invalid card number or PIN'], 401);
         }
 

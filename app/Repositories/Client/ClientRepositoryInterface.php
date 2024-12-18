@@ -7,9 +7,13 @@ namespace App\Repositories\Client;
 interface ClientRepositoryInterface
 {
 
-    public function updateBalance(int $userId, float $amount);
+    public const OPERATION_ADD = 'add';
+    public const OPERATION_SUBTRACT = 'subtract';
 
-    public function withdraw(int $userId, float $amount);
+    public function updateBalance(int $userId, float $amount, string $operation): bool;
+
+    public function getBalance(int $userId): float;
+
 
 }
 

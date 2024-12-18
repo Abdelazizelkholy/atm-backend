@@ -11,4 +11,7 @@ Route::post('login', [AuthController::class, 'login']);
 Route::middleware(['auth:api'])->group(function () {
     Route::post('deposit', [ClientTransactionController::class, 'deposit']);
     Route::post('withdraw', [ClientTransactionController::class, 'withdraw']);
+    Route::get('balance', [ClientTransactionController::class, 'getBalance']);
+    Route::get('transactions', [ClientTransactionController::class, 'getTransactions']);
+
 });
