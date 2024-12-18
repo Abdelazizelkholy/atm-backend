@@ -20,7 +20,7 @@ class TransactionController extends Controller
     }
 
 
-    public function transactions(Request $request): TransactionCollection
+    public function transactions(Request $request)
     {
 
         $validated = $request->validate([
