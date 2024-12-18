@@ -31,7 +31,7 @@ class TransactionController extends Controller
         $transactions = $this->transactionRepository->getAllTransactions($validated);
 
         return ApiResponse::data(new TransactionCollection($transactions)
-            , ' Get Inf User', 200);
+            , ' Get All transactions', 200);
 
     }
 
