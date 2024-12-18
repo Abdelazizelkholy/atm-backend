@@ -26,7 +26,7 @@ class ClientTransactionController extends Controller
         $this->clientTransactionRepository = $clientTransactionRepository;
     }
 
-    public function deposit(DepositRequest $request): \Illuminate\Http\JsonResponse
+    public function deposit(DepositRequest $request)
     {
         $user = auth()->user();
         $amount = $request->validated()['amount'];
@@ -38,9 +38,7 @@ class ClientTransactionController extends Controller
         );
 
         if (!$balanceUpdated) {
-            return response()->json([
-                'error' => 'Failed to update balance.',
-            ], 400);
+            return ApiResponse::errors('Failed to update balance.');
         }
 
         $this->clientTransactionRepository->createTransaction(
@@ -49,22 +47,19 @@ class ClientTransactionController extends Controller
             $amount
         );
 
-        return response()->json([
-            'message' => 'Deposit successful',
-            'balance' => $this->clientRepository->getBalance($user->id),
-        ], 200);
+
+        return ApiResponse::data( [ 'balance' => $this->clientRepository->getBalance($user->id)]
+            , ' Deposit successful ', 200);
     }
 
-    public function withdraw(WithdrawRequest $request): \Illuminate\Http\JsonResponse
+    public function withdraw(WithdrawRequest $request)
     {
         $user = auth()->user();
         $amount = $request->validated()['amount'];
 
 
         if ($user->account->balance < $amount) {
-            return response()->json([
-                'error' => 'Insufficient balance',
-            ], 400);
+            return ApiResponse::errors('Insufficient balance.');
         }
 
         $this->clientRepository->updateBalance($user->id, $amount, ClientRepositoryInterface::OPERATION_SUBTRACT);
@@ -75,29 +70,26 @@ class ClientTransactionController extends Controller
             $amount
         );
 
-        return response()->json([
-            'message' => 'Withdrawal successful',
-            'balance' => $this->clientRepository->getBalance($user->id),
-        ], 200);
+
+        return ApiResponse::data( [ 'balance' => $this->clientRepository->getBalance($user->id)]
+            , ' Withdrawal successful ', 200);
     }
 
 
-    public function getBalance(): \Illuminate\Http\JsonResponse
+    public function getBalance()
     {
         $user = auth()->user();
 
         if (!$user->account) {
-            return response()->json([
-                'error' => 'Account not found.',
-            ], 404);
+            return ApiResponse::errors('Account not found.');
         }
 
-        return response()->json([
-            'balance' => $this->clientRepository->getBalance($user->id),
-        ], 200);
+
+        return ApiResponse::data( [ 'balance' => $this->clientRepository->getBalance($user->id)]
+            , ' return balance ', 200);
     }
 
-    public function getTransactions(): \Illuminate\Http\JsonResponse
+    public function getTransactions()
     {
 
         $user = auth()->user();
@@ -105,14 +97,8 @@ class ClientTransactionController extends Controller
         $transactions = $this->clientTransactionRepository->getTransactionsByUserId($user->id);
 
         if ($transactions->isEmpty()) {
-            return response()->json([
-                'message' => 'No transactions found.',
-            ], 200);
+            return ApiResponse::errors('No transactions found.');
         }
-
-       /* return response()->json([
-            'transactions' => TransactionResource::collection($transactions),
-        ], 200);*/
 
         return ApiResponse::data(TransactionResource::collection($transactions)
             , ' Get All Transactions ', 200);

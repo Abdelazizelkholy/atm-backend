@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ApiResponse;
 use App\Http\Requests\LoginRequest;
+use App\Http\Resources\TransactionResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -11,7 +13,7 @@ class AuthController extends Controller
 {
 
 
-    public function login(LoginRequest $request): \Illuminate\Http\JsonResponse
+    public function login(LoginRequest $request)
     {
         $credentials = $request->only('card_number', 'pin');
 
@@ -20,15 +22,13 @@ class AuthController extends Controller
         })->first();
 
         if (!$user || !Hash::check($credentials['pin'], $user->account->pin)) {
-            return response()->json(['error' => 'Invalid card number or PIN'], 401);
+            return ApiResponse::errors('Invalid card number or PIN.');
         }
 
         $token = $user->createToken('ATM Login')->accessToken;
 
-        return response()->json([
-            'message' => 'Login successful',
-            'token' => $token,
-        ], 200);
+        return ApiResponse::data(['token' => $token]
+            , ' Login successful ', 200);
     }
 
 
