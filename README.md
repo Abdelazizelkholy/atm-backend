@@ -146,7 +146,6 @@ To test the API, use a tool like **Postman** or **Insomnia** to interact with th
     php artisan config:clear
     php artisan route:clear
     ```
-
 ---
 
 ### Troubleshooting
