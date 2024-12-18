@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ApiResponse;
 use App\Http\Requests\DepositRequest;
 use App\Http\Requests\WithdrawRequest;
 use App\Http\Resources\TransactionResource;
@@ -10,6 +11,7 @@ use App\Repositories\Client\ClientRepositoryInterface;
 use App\Repositories\Client\ClientTransactionRepository;
 use App\Repositories\Client\ClientTransactionRepositoryInterface;
 use Illuminate\Http\Request;
+use Modules\Accounts\Http\Resources\Api\ProfileResource;
 
 class ClientTransactionController extends Controller
 {
@@ -108,9 +110,12 @@ class ClientTransactionController extends Controller
             ], 200);
         }
 
-        return response()->json([
+       /* return response()->json([
             'transactions' => TransactionResource::collection($transactions),
-        ], 200);
+        ], 200);*/
+
+        return ApiResponse::data(TransactionResource::collection($transactions)
+            , ' Get All Transactions ', 200);
     }
 
 
