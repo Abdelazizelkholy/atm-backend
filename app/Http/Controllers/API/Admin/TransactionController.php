@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\API\Admin;
 
+use App\Helpers\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\API\Admin\TransactionCollection;
+use App\Http\Resources\API\Admin\UserResource;
 use App\Repositories\TransactionRepositoryInterface;
 use Illuminate\Http\Request;
 
@@ -28,7 +30,8 @@ class TransactionController extends Controller
 
         $transactions = $this->transactionRepository->getAllTransactions($validated);
 
-        return new TransactionCollection($transactions);
+        return ApiResponse::data(new TransactionCollection($transactions)
+            , ' Get Inf User', 200);
 
     }
 
